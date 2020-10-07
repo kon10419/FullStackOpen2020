@@ -4,16 +4,21 @@ import Content from "./Content";
 import Total from "./Total";
 
 
-const Course = ({course}) => {
+const Courses = ({courses}) => {
     
-    return(
-        <>
+    return(<>
+    <h1>WebDevelopment Curriculum</h1>
+        {courses.map((course) => {
+            return <>
         <Header course = {course.name} />
         <Content parts = {course.parts} />
         <Total parts = {course.parts}/>
+        </>
+        })}
+        
         </>
     )
 
 }
 
-export default Course;
+export default Courses;
