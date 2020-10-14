@@ -12,6 +12,10 @@ const App = () => {
   const addPerson = (event) => {
     const newPerson = {name: newName, key: newName}
     event.preventDefault();
+    if(persons.find(person => person.name === newName)) {
+      alert(`${newName} has already been added`);
+      setNewName("")
+    }
     setPersons(persons.concat(newPerson));
     setNewName("");
     console.log(persons);
