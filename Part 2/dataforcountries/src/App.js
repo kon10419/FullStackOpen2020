@@ -9,7 +9,11 @@ import './App.css';
 const App = () => {
   const [search, setSearch] = useState("")
   const [countries, setCountries] = useState([])
-  const [found, setFound] = useState(0);
+  const [tooMany, setTooMany] = useState(false); 
+  let foundCountries = [];
+  let found = 0;
+  let newArray =[];
+  
   useEffect(() => {
     axios 
       .get("https://restcountries.eu/rest/v2/all")
@@ -19,35 +23,41 @@ const App = () => {
       })
   },[])
 
-
-  const foundMatch = () =>{
-    setFound(found + 1);
+  const checkCountry = (x) =>{
+    let check = x.name.toLowerCase();
+    if(check.search(search.toLowerCase()) != -1){
+      return x
+    }
   }
   const handleSearch = (event) =>{
     setSearch(event.target.value);
+    let found = countries.filter(country => checkCountry(country));
+    console.log("foundCountries is ", found);
+    console.log(search);
   }
-  const searchCountries = () => {
-    let foundCountries = countries.map((country) => {
-      let name = country.name.toLowerCase();
-      if(name.search(search.toLowerCase) !== -1){
-        foundMatch()
-        foundCountries.concat(country);
-      } 
-    })
+  const changeTooMany = (x) => {
+    setTooMany(x)
   }
+
+  countries.map((country) => {
+    let check = country.name.toLowerCase();
+    let newSearch = search.toLowerCase();
+   return  check.search(newSearch) != -1 && found <=10 ?
+    foundCountries.push(country)
+    : <></>
+  })  
   return (<div>
-  <Search handleSearch={handleSearch} search={search} />
+  <Search handleSearch={handleSearch} search={search} changeTooMany={changeTooMany} />
   
-  {
-    foundMatch <= 10 ? 
-    countries.map((country) => {
-     return <Country country={country} search={search} found={found} foundMatch={foundMatch} />
-    }) : <p>Too many matches, specify another new filter</p>
-    
+    {
+      foundCountries.length <= 10?
+      foundCountries.map((country) => {
+      return <Country country={country} foundCountries={foundCountries} />
+      })
+      :<p>Too many matches, specify a new filter</p>
     }
   
   </div> )
-
 }
 
 
