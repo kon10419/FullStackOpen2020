@@ -1,45 +1,36 @@
-import React from "react"
+import React, {useState} from "react"
 
-const Country = (props) => {
-    let country = props.country;
-    let languages = []
-    let search = props.search;
-    let countryName= props.country.name.toLowerCase();
-    let found = props.found;
-    let foundMatch= props.foundMatch;
-
-    country.languages.map((language) => {
-        languages.push(language.name);
-    });
-    
-    if(countryName.search(search.toLowerCase !== -1)){
-        if(found === 0 ){
-            foundMatch();
-            return(<>
-                <h1>{country.name}</h1>
-                <p>{country.capital}</p>
-                <h2>languages</h2>
-                <ul>
-                {languages.map((language) => {
-                    foundMatch();
-                    return <li>
-                        {language}
-                    </li>
-                })}
-                </ul>
-                <img src= {country.flag}/>
-        
-                </>)    
-               } else if(found <= 10 ){
-                foundMatch();
-                 return <p>{country.name}</p>
-        } else{
-            return <p>Too many matches, specify another filter</p>
-        }
-
+const Country = ({country, foundCountries, handleClick}) => {
+    const [clicked, setClicked] = useState(false);
+    let languages = country.languages;
+    if(foundCountries.length ===1){
+        return (
+            <>
+            <h1>{country.name}</h1>
+            <p>Capital {country.capital}</p>
+            <p>Population {country.population}</p>
+            <h2>Languages</h2>
+            <ul>
+                {
+                    languages.map((language) => {
+                      return <li>{language.name}</li>
+                    })
+                }
+            </ul>
+            <h2>Flag</h2>
+            <img src={country.flag} />
+            </>
+        )
     }else{
-        return<p>No matches found</p>
-    }
-}
+        return (<>
+            {
+                clicked === false? 
+                <p>{country.name} <button name={country.name} onClick={handleClick}>Show</button></p>
+                : <p>clicked</p>
+            }  
+         </>)
 
+    }
+       
+}
 export default Country;
