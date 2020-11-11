@@ -32,16 +32,32 @@ const App = () => {
   const addPerson = (event) => {
     const newPerson = {name: newName, key: newName, number: newNumber}
     event.preventDefault();
-    if(persons.find(person => person.name === newName)) {
+    if(persons.find(person => person.name === newName && person.number === newNumber)) {
       alert(`${newName} has already been added`);
       setNewName("")
       setNewNumber("");
     }
-    personService.add(newName,newPerson.key,newNumber);
+      else{
+        personService.update(newPerson.id,newPerson)
+      }
+    
+    personService.add(newPerson);
     setPersons(persons.concat(newPerson));
     setNewName("");
     setNewNumber("");
     console.log(persons);
+  }
+
+  const handleDelete = (event) => {
+    const name = event.target.name;
+    const personToDelete = persons.find(person => person.name === name);
+
+    const shouldDelete = window.confirm(`delete ${name}?`);
+    
+    if(shouldDelete === true){
+      personService.deletePerson(personToDelete);
+      setPersons(persons.filter(person => person.name !== name));
+    }
   }
 
   return (
@@ -52,7 +68,7 @@ const App = () => {
       <h2>Numbers</h2>
       <ul>
       {persons.map((person) =>
-        <Persons person={person} search={search}/>)}
+        <Persons person={person} search={search} handleDelete={handleDelete}/>)}
       </ul>
     </div>
   )
