@@ -12,7 +12,7 @@ const add = (newPerson) =>{
 }
 
 const update = (id,newPerson) => {
-    return axios.put(`${baseURL}/${id}`,newPerson)
+    return axios.put(`${baseURL}/${id}`,newPerson);
 }
 
 const deletePerson = (person) => {

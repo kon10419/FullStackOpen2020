@@ -31,21 +31,33 @@ const App = () => {
 
   const addPerson = (event) => {
     const newPerson = {name: newName, key: newName, number: newNumber}
+    let id = 0;
     event.preventDefault();
-    if(persons.find(person => person.name === newName && person.number === newNumber)) {
+    if(persons.find(person => person.name === newName)) {
+      if(persons.find(person => person.number === newNumber)){
+
       alert(`${newName} has already been added`);
       setNewName("")
       setNewNumber("");
-    }
-      else{
-        personService.update(newPerson.id,newPerson)
+      }else{
+        const updateNumber = window.confirm(`Update phone number for ${newName}?`);
+        if(updateNumber === true){
+        persons.find(person => person.name === newName ? id = person.id : null);
+        let newList = persons.filter(person => person.name !== newName);
+        newPerson.id = id;
+        newList.push(newPerson);
+        personService.update(id,newPerson)
+        setPersons(newList);
+        setNewName("");
+        setNewNumber("");
       }
-    
+    }}else{
     personService.add(newPerson);
     setPersons(persons.concat(newPerson));
     setNewName("");
     setNewNumber("");
     console.log(persons);
+  }
   }
 
   const handleDelete = (event) => {
