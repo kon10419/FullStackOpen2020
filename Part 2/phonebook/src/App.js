@@ -4,12 +4,15 @@ import Filter from "./components/Filter"
 import PersonForm from "./components/PersonForm"
 import Persons from "./components/Persons"
 import personService from "./services/persons";
+import Notification from "./components/Notification";
 
 const App = () => {
   const [persons, setPersons] = useState([])
   const [search, setSearch] = useState("")
   const [newNumber, setNewNumber] = useState("")
   const [ newName, setNewName ] = useState('')
+  const [message, setMessage] = useState(null)
+  const [messageType, setMessageType] = useState("")
 
   useEffect(() => {
     personService.getAll()
@@ -18,6 +21,16 @@ const App = () => {
       })
   }, [])
 
+  const resetInput = () => {
+    setNewName("");
+    setNewNumber("");
+  }
+  const resetMessage = () => {
+    setTimeout(() =>{
+      setMessage(null);
+      setMessageType("");
+    },5000)
+  }
   
   const handleSearch = (event) => {
     setSearch(event.target.value);
@@ -35,46 +48,80 @@ const App = () => {
     event.preventDefault();
     if(persons.find(person => person.name === newName)) {
       if(persons.find(person => person.number === newNumber)){
-
-      alert(`${newName} has already been added`);
-      setNewName("")
-      setNewNumber("");
+      resetInput();
+      setMessage(`${newName} has already been added`);
+      setMessageType("error");
+      resetMessage();
       }else{
         const updateNumber = window.confirm(`Update phone number for ${newName}?`);
         if(updateNumber === true){
         persons.find(person => person.name === newName ? id = person.id : null);
-        let newList = persons.filter(person => person.name !== newName);
+        let newList = persons;
+        newList.find(person => person.name === newName ? person.number = newNumber : null);
         newPerson.id = id;
-        newList.push(newPerson);
         personService.update(id,newPerson)
-        setPersons(newList);
-        setNewName("");
-        setNewNumber("");
+        .then(() => {
+          setPersons(newList);
+        resetInput();
+        setMessage(`Updated ${newName}`);
+        setMessageType("success");
+        resetMessage();
+        })
+        .catch(error => {
+          setMessage(`${newName} has already been removed from server.`);
+          setMessageType("error");
+          personService.getAll()
+          .then((response => {
+            setPersons(response.data)
+          }))
+          .then(() => {
+            resetMessage();
+            resetInput();
+          })
+        })
       }
     }}else{
-    personService.add(newPerson);
-    setPersons(persons.concat(newPerson));
-    setNewName("");
-    setNewNumber("");
-    console.log(persons);
+    personService.add(newPerson)
+    .then(() => {
+      personService.getAll()
+      .then(response => {
+        setPersons(response.data)
+      }).then(() => {
+        resetInput();
+    setMessage(`Added ${newName}`);
+    setMessageType("success");
+    resetMessage();
+      })
+    })
+    .catch(error => {
+      setMessage(`${newName} has already been added`);
+      setMessageType("error");
+      resetMessage();
+    })
   }
   }
 
   const handleDelete = (event) => {
+    console.log(`Delete event is ${event.target.name}`);
     const name = event.target.name;
     const personToDelete = persons.find(person => person.name === name);
-
+    console.log(`Person to delete is ${personToDelete.name}`);
     const shouldDelete = window.confirm(`delete ${name}?`);
-    
     if(shouldDelete === true){
-      personService.deletePerson(personToDelete);
+      personService.deletePerson(personToDelete)
+      .then(() => {
       setPersons(persons.filter(person => person.name !== name));
+      setMessage(`Deleted ${name}`);
+      setMessageType("success");
+      resetMessage();
+      })
     }
   }
 
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={message} type={messageType} />
       <Filter handleSearch={handleSearch} search={search}/>
       <PersonForm addPerson={addPerson} handleName={handleName} handleNumber={handleNumber}  newNumber= {newNumber}  newName={newName} />
       <h2>Numbers</h2>
@@ -86,4 +133,4 @@ const App = () => {
   )
 }
 
-export default App
+export default App 
